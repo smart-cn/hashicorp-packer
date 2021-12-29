@@ -1,8 +1,8 @@
 {
     "variables": {
-        "aws_access_key": "ACCESSKEY",
-        "aws_secret_key": "SECRETKEY",
-        "aws_subnet_id": "SUBNETID"
+        "aws_access_key": "",
+        "aws_secret_key": "",
+        "aws_subnet_id": ""
     },
     "builders": [
         {
@@ -16,18 +16,33 @@
             "source_ami_filter": {
                 "filters": {
                     "virtualization-type": "hvm",
-                    "name": "*ubuntu/images/*ubuntu-focal-20.04-amd64-server-*",
+                    "name": "ubuntu/images/*ubuntu-focal-20.04-amd64-server-*",
                     "root-device-type": "ebs"
                 },
                 "owners": ["099720109477"],
                 "most_recent": true
             },
-            "security_group_filter": {
-                "filters": {
-                    "tag:Class": "packer"
-                }
-            },
             "ssh_username": "ubuntu"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "inline": [
+                "sudo apt-get update -y && sudo apt-get upgrade -y",
+                "sudo mkdir /opt/provisioning",
+                "sudo chown ubuntu:ubuntu /opt/provisioning"
+            ]
+        },
+        {
+            "type": "shell",
+            "scripts": [
+                "scripts/init.sh",
+                "scripts/webdeploy.sh"
+            ],
+            "environment_vars": ["HOSTNAME=bookapp"],
+            "remote_folder": "/opt/provisioning",
+            "skip_clean": true
         }
     ]
 }
