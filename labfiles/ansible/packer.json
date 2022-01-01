@@ -1,15 +1,13 @@
 {
     "variables": {
-        "aws_access_key": "ACCESSKEY",
-        "aws_secret_key": "SECRETKEY",
-        "aws_subnet_id": "SUBNETID"
+        "aws_access_key": "",
+        "aws_secret_key": ""
     },
     "builders": [
         {
             "type": "amazon-ebs",
             "access_key": "{{user `aws_access_key`}}",
             "secret_key": "{{user `aws_secret_key`}}",
-            "subnet_id": "{{user `aws_subnet_id`}}",
             "region": "us-east-1",
             "instance_type": "t3.micro",
             "ami_name": "bookapp-{{timestamp}}",
@@ -22,11 +20,6 @@
                 "owners": ["099720109477"],
                 "most_recent": true
             },
-            "security_group_filter": {
-                "filters": {
-                    "tag:Class": "packer"
-                }
-            },
             "ssh_username": "ubuntu"
         }
     ],
@@ -38,6 +31,11 @@
                 "sudo apt-get update -y && sudo apt-get upgrade -y",
                 "sudo apt install python -y"
             ]
+        },
+        {
+            "type": "ansible",
+            "playbook_file": "/home/smart/cloudguru/hashicorp_packer/labfiles/ansible/files/website.yml",
+            "groups": ["web"]
         }
     ]
 }

@@ -1,0 +1,32 @@
+---
+- hosts: default
+  become: true
+  tasks:
+  - name: Install Apache packages 
+    apt:
+      name: apache2
+      state: present
+  - name: Create website root
+    file:
+      path: /var/www/html/bookapp
+      state: directory
+      owner: www-data
+      mode: '0755'
+  - name: Copy website
+    copy:
+      dest: /var/www/html/bookapp
+      src: "/home/smart/cloudguru/hashicorp_packer/labfiles/ansible/files/bookapp/"
+      owner: www-data
+  - name: Add website configuration
+    copy:
+      dest: /etc/apache2/sites-available/
+      src: "/home/smart/cloudguru/hashicorp_packer/labfiles/ansible/files/bookapp.conf"
+      owner: root
+  - name: Disable default website
+    command: a2dissite 000-default.conf
+  - name: Enable Bookapp website
+    command: a2ensite bookapp.conf
+  - name: Ensure Apache is running
+    service:
+      name: apache2
+      state: started
